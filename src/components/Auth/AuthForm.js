@@ -13,18 +13,25 @@ const AuthForm = () => {
     setIsLogin((prevState) => !prevState);
   };
 
+
+
   const submitHandler = async (event) => {
-    event.preventDefault();
-    const enteredEmail = emailInputRef.current.value;
-    const enteredPassword = passwordInputRef.current.value;
+    try {
+      event.preventDefault();
+      const enteredEmail = emailInputRef.current.value;
+      const enteredPassword = passwordInputRef.current.value;
 
-    setIsLoading(true);
+      setIsLoading(true);
 
-    if (isLogin) {
+      let url;
+      if (isLogin) {
+        url = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBHWRGef6PTi75qy9PjC9Q6h4uiFEYoyZc';
+      }
+      else {
+        url = 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBHWRGef6PTi75qy9PjC9Q6h4uiFEYoyZc';
+      }
 
-    }
-    else {
-      const respone = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBHWRGef6PTi75qy9PjC9Q6h4uiFEYoyZc`,
+      const respone = await fetch(url,
         {
           method: 'POST',
           body: JSON.stringify({
@@ -39,7 +46,8 @@ const AuthForm = () => {
 
       setIsLoading(false);
       if (respone.ok) {
-
+        const data = await respone.json();
+        console.log(data);
       }
       else {
         const data = await respone.json()
@@ -47,8 +55,12 @@ const AuthForm = () => {
         if (data && data.error && data.error.message) {
           errorMessage = data.error.message;
         }
-        alert(errorMessage);
+        throw new Error(errorMessage);
       }
+    }
+    
+    catch (error) {
+      alert(error.message)
     }
   }
 
